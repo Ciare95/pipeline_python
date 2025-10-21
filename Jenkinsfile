@@ -1,28 +1,35 @@
 pipeline {
-    agent any
+    agent {
+        docker {
+            image 'python:3.11'
+            args '-u root'  // Permite instalar paquetes si hace falta
+        }
+    }
 
     stages {
         stage('Instalar dependencias') {
             steps {
-                script {
-                    if (isUnix()) {
-                        sh 'pip install -r requirements.txt || echo "No hay archivo requirements.txt"'
-                    } else {
-                        bat 'pip install -r requirements.txt || echo No hay archivo requirements.txt'
-                    }
-                }
+                sh '''
+                    pip install -r requirements.txt || echo "No hay archivo requirements.txt"
+                '''
             }
         }
+
         stage('Ejecutar pruebas') {
             steps {
-                script {
-                    if (isUnix()) {
-                        sh 'python3 test_main.py'
-                    } else {
-                        bat 'python test_main.py'
-                    }
-                }
+                sh '''
+                    python test_main.py
+                '''
             }
+        }
+    }
+
+    post {
+        success {
+            echo 'Pipeline ejecutado correctamente.'
+        }
+        failure {
+            echo 'Ocurrió un error en la ejecución del pipeline.'
         }
     }
 }

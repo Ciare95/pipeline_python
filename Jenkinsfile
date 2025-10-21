@@ -1,15 +1,12 @@
 pipeline {
-    agent {
-        docker {
-            image 'python:3.11'
-            args '-u root'
-        }
-    }
+    agent any
 
     stages {
         stage('Instalar dependencias') {
             steps {
                 sh '''
+                    python3 -m venv venv
+                    . venv/bin/activate
                     pip install -r requirements.txt || echo "No hay archivo requirements.txt"
                 '''
             }
@@ -18,7 +15,8 @@ pipeline {
         stage('Ejecutar pruebas') {
             steps {
                 sh '''
-                    python test_main.py
+                    . venv/bin/activate
+                    python3 test_main.py
                 '''
             }
         }
